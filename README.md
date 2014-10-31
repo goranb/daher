@@ -1,6 +1,6 @@
 daher
 =====
 
-visuals for matthew daher's ep
+visuals for Matthew Daher's Ep
 
 - songs should be in data/ folder
