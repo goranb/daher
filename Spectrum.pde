@@ -1,0 +1,152 @@
+
+import ddf.minim.analysis.*;
+import ddf.minim.*;
+
+
+class Spectrum {
+
+	PApplet applet;
+	String song;
+	int num;
+	int blur;
+	float bendPow;
+	
+	Minim minim;
+	AudioPlayer sound;
+	FFT fft;
+
+	float dropoff = 0.95;
+	float[] energies;
+	float[] spectrum;
+	int specSize;
+
+	Spectrum(PApplet applet, String song, int num, int blur, int bendPow){
+		this.applet = applet;
+		this.num = num;
+		this.blur = blur;
+		this.bendPow = bendPow;
+		// initialize
+		energies = new float[num / 2];
+		spectrum = new float[num / 2];
+		for (int i = 0; i < num / 2; i++){
+			energies[i] = spectrum[i] = 0.0;
+		}
+		minim = new Minim(this.applet);
+		sound = minim.loadFile(song, num);
+		sound.loop();	
+		fft = new FFT(sound.bufferSize(), sound.sampleRate());
+		specSize = fft.specSize() - 1;
+	}
+
+	Spectrum(PApplet applet, String song, int num, int blur){
+		this(applet, song, num, blur, 12);
+	}
+
+	Spectrum(PApplet applet, String song, int num){
+		this(applet, song, num, 10);
+	}
+
+	Spectrum(PApplet applet, String song){
+		this(applet, song, 1024);
+	}
+
+	void draw(){
+		dropoff = mouseY * 1.0 / h;
+		background(0);
+		//fill(0);
+		noFill();
+		strokeWeight(2);
+		fft.forward(sound.mix);
+		// float x = 0;
+		//int specSize = fft.specSize() - 1;
+		for (int i = 0; i < specSize; i++){
+			float p = i * 1.0 / (specSize - 1);
+			float val = fft.getBand(i) * 2 / num * log2_45(i + 1.0);
+			float l = log45(val);
+			energies[i] *= dropoff; // dropoff
+			if (l > energies[i]){
+				energies[i] = l;
+			}
+		}
+		for (int i = 0; i < specSize; i++){
+			int s1 = floor(bend((i * 1.0) / specSize, bendPow) * specSize);
+			int s2 = min(specSize, floor(bend((i * 1.0 + 1.0) / specSize, bendPow) * specSize));
+			for(int e = s1; e < s2; e++){
+				spectrum[e] = energies[i];
+			}
+		}
+
+		// apply guassian blur
+		float[] blurred = new float[specSize];
+		// calculate sum
+		float sum = 0.0;
+		for(int s = 0; s < blur; s++){
+			sum += s * 2;
+		}
+		sum += blur;
+		for (int i = 0; i < specSize; i++){
+			blurred[i] = 0.0;
+			for (int c = -blur; c < blur + 1; c++){
+				int e = min(specSize - 1, max(0, i + c)); // put into range
+				// blurred[i] += spectrum[e] * conv[c + conv.length / 2];
+				float f = sum > 0 ? (blur - abs(c)) / sum : 1;
+				blurred[i] += spectrum[e] * f;
+			}
+		}
+
+
+		// draw spectrum
+		// x = 0;
+		// stroke(255, 255, 0);
+		// for (int i = 0; i < specSize; i++){
+		// 	float p = i * 1.0 / (specSize - 1);
+		// 	line(x, h - h * spectrum[i], p * w, h - h * spectrum[i]);
+		// 	x = p * w;
+		// }
+
+		// draw blurred
+		float x = 0;
+		stroke(0, 255, 255);
+		for (int i = 0; i < specSize - 1; i++){
+			float p = i * 1.0 / (specSize - 1);
+			line(x, h - h * blurred[i], p * w, h - h * blurred[i + 1]);
+			x = p * w;
+		}
+
+
+		/* //show bend correction curve
+		stroke(255, 0, 0);
+		for (int i = 0; i < w; i++){
+			float a = bend(i * 1.0 / w, bendPow);
+			//a = i * 1.0 / w;
+			line(i, h - h * a, i + 1, h - h * a);
+		}
+		//*/
+	}
+
+	float log45(float v){
+		return (log(v * 2.71828) + 4.0) / 5.0;
+	}
+
+	float log2(float v){
+		return (log(v) / log(2)); 
+	}
+
+	float log2_45(float v){
+		return (log2(v) + 4.0) / 5.0; 
+	}
+
+	float bend(float a, float f){
+		return 1.0 - pow(1.0 - a, f);
+	}
+
+	float bend(float a){
+		return bend(a, 2);
+	}
+
+	void mousePressed(){
+		int position = int(map( mouseX, 0, width, 0, sound.length()));
+		sound.cue(position);
+	}
+
+}
