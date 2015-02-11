@@ -10,6 +10,7 @@ class Spectrum {
 	int num;
 	int blur;
 	float bendPow;
+	boolean visible = true;
 	
 	Minim minim;
 	AudioPlayer sound;
@@ -43,7 +44,7 @@ class Spectrum {
 	}
 
 	Spectrum(PApplet applet, String song, int num){
-		this(applet, song, num, 10);
+		this(applet, song, num, 0);
 	}
 
 	Spectrum(PApplet applet, String song){
@@ -51,14 +52,13 @@ class Spectrum {
 	}
 
 	void draw(){
+		if (!visible) return; // draw only if visible
+		// init
 		dropoff = mouseY * 1.0 / h;
 		background(0);
-		//fill(0);
 		noFill();
 		strokeWeight(2);
 		fft.forward(sound.mix);
-		// float x = 0;
-		//int specSize = fft.specSize() - 1;
 		for (int i = 0; i < specSize; i++){
 			float p = i * 1.0 / (specSize - 1);
 			float val = fft.getBand(i) * 2 / num * log2_45(i + 1.0);
@@ -96,32 +96,33 @@ class Spectrum {
 
 
 		// draw spectrum
-		// x = 0;
-		// stroke(255, 255, 0);
-		// for (int i = 0; i < specSize; i++){
-		// 	float p = i * 1.0 / (specSize - 1);
-		// 	line(x, h - h * spectrum[i], p * w, h - h * spectrum[i]);
-		// 	x = p * w;
-		// }
-
-		// draw blurred
 		float x = 0;
-		stroke(0, 255, 255);
-		for (int i = 0; i < specSize - 1; i++){
+		stroke(255, 0, 128);
+		strokeWeight(10);
+		for (int i = 0; i < specSize; i++){
 			float p = i * 1.0 / (specSize - 1);
-			line(x, h - h * blurred[i], p * w, h - h * blurred[i + 1]);
+			line(x, h - h * spectrum[i], p * w, h - h * spectrum[i]);
 			x = p * w;
 		}
 
+		// draw blurred
+		// x = 0;
+		// stroke(0, 255, 255);
+		// for (int i = 0; i < specSize - 1; i++){
+		// 	float p = i * 1.0 / (specSize - 1);
+		// 	line(x, h - h * blurred[i], p * w, h - h * blurred[i + 1]);
+		// 	x = p * w;
+		// }
 
-		/* //show bend correction curve
-		stroke(255, 0, 0);
-		for (int i = 0; i < w; i++){
-			float a = bend(i * 1.0 / w, bendPow);
-			//a = i * 1.0 / w;
-			line(i, h - h * a, i + 1, h - h * a);
-		}
-		//*/
+
+		//show bend correction curve
+		// stroke(255, 0, 0);
+		// for (int i = 0; i < w; i++){
+		// 	float a = bend(i * 1.0 / w, bendPow);
+		// 	//a = i * 1.0 / w;
+		// 	line(i, h - h * a, i + 1, h - h * a);
+		// }
+		//
 	}
 
 	float log45(float v){
