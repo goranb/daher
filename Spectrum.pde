@@ -21,7 +21,8 @@ class Spectrum {
 	float[] spectrum;
 	int specSize;
 
-	Spectrum(PApplet applet, String song, int num, int blur, int bendPow){
+	Spectrum(PApplet applet, String song, int num, int blur, int bendPow)
+	{
 		this.applet = applet;
 		this.num = num;
 		this.blur = blur;
@@ -39,23 +40,26 @@ class Spectrum {
 		specSize = fft.specSize() - 1;
 	}
 
-	Spectrum(PApplet applet, String song, int num, int blur){
+	Spectrum(PApplet applet, String song, int num, int blur)
+	{
 		this(applet, song, num, blur, 12);
 	}
 
-	Spectrum(PApplet applet, String song, int num){
+	Spectrum(PApplet applet, String song, int num)
+	{
 		this(applet, song, num, 0);
 	}
 
-	Spectrum(PApplet applet, String song){
+	Spectrum(PApplet applet, String song)
+	{
 		this(applet, song, 1024);
 	}
 
-	void draw(){
+	void draw()
+	{
 		if (!visible) return; // draw only if visible
 		// init
-		dropoff = mouseY * 1.0 / h;
-		background(0);
+		dropoff = mouseY * 1.0 / height;
 		noFill();
 		strokeWeight(2);
 		fft.forward(sound.mix);
@@ -95,24 +99,25 @@ class Spectrum {
 		}
 
 
-		// draw spectrum
 		float x = 0;
-		stroke(255, 0, 128);
-		strokeWeight(10);
-		for (int i = 0; i < specSize; i++){
-			float p = i * 1.0 / (specSize - 1);
-			line(x, h - h * spectrum[i], p * w, h - h * spectrum[i]);
-			x = p * w;
-		}
-
-		// draw blurred
-		// x = 0;
-		// stroke(0, 255, 255);
-		// for (int i = 0; i < specSize - 1; i++){
+		
+		// /* draw spectrum */
+		// stroke(255, 0, 128);
+		// strokeWeight(10);
+		// for (int i = 0; i < specSize; i++){
 		// 	float p = i * 1.0 / (specSize - 1);
-		// 	line(x, h - h * blurred[i], p * w, h - h * blurred[i + 1]);
-		// 	x = p * w;
+		// 	line(x, height - height * spectrum[i], p * width, height - height * spectrum[i]);
+		// 	x = p * width;
 		// }
+		// x = 0;
+
+		// /* draw blurred */
+		stroke(0, 255, 255);
+		for (int i = 0; i < specSize - 1; i++){
+			float p = i * 1.0 / (specSize - 1);
+			line(x, height - height * blurred[i], p * width, height - height * blurred[i + 1]);
+			x = p * width;
+		}
 
 
 		//show bend correction curve
@@ -125,29 +130,35 @@ class Spectrum {
 		//
 	}
 
-	float log45(float v){
+	float log45(float v)
+	{
 		return (log(v * 2.71828) + 4.0) / 5.0;
 	}
 
-	float log2(float v){
+	float log2(float v)
+	{
 		return (log(v) / log(2)); 
 	}
 
-	float log2_45(float v){
+	float log2_45(float v)
+	{
 		return (log2(v) + 4.0) / 5.0; 
 	}
 
-	float bend(float a, float f){
+	float bend(float a, float f)
+	{
 		return 1.0 - pow(1.0 - a, f);
 	}
 
-	float bend(float a){
+	float bend(float a)
+	{
 		return bend(a, 2);
 	}
 
-	void mousePressed(){
-		int position = int(map( mouseX, 0, width, 0, sound.length()));
-		sound.cue(position);
+	void cue(float position)
+	{
+		//println(position);
+		//println(map(position, 0.0, 1.0, 0, sound.length()));
+		sound.cue((int)map(position, 0.0, 1.0, 0, sound.length()));
 	}
-
 }

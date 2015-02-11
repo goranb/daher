@@ -1,68 +1,94 @@
 
 
-int w = 1024;
-int h = 512;
+static final int w = 192;
+static final int h = 108;
+static final int f = 3;
 
+Spectrum s;	
 Recorder r;
-Spectrum s;
 
 String song = "hbrk.wav"; // instrumental
-//String song = "sweep.wav"; 
-//String song = "pluk10c.wav"; // 10 c notes from 12
-//String song = "tone8a.wav"; // 8 notes from 55hz (A)
 
 boolean shift = false;
 boolean ctrl = false;
 boolean alt = false;
 
-void setup(){
-	size(w, h, P3D);
-	//r = new Recorder();
-	frameRate(30);
+void setup()
+{
+	size(w * f, h * f, P3D);
 	s = new Spectrum(this, song);
+	r = new Recorder(s);
+	frameRate(30);
 }
 
-void draw(){
+void draw()
+{
+	background(0);
+	r.draw();
 	s.draw();
 }
 
-void mousePressed(){
-	s.mousePressed();
+void mousePressed()
+{
+	r.mousePressed(
+		map(mouseX, 0, width, 0.0, 1.0),
+		map(mouseY, 0, height, 0.0, 1.0)
+	);
 }
 
-void keyPressed(){
-	// special keys
-	if (key == CODED) {
-		print("CODED: " + "[" + key + "]");
-		switch(keyCode){
+void mouseMoved()
+{
+	r.mouseMoved(
+		map(mouseX, 0, width, 0.0, 1.0),
+		map(mouseY, 0, height, 0.0, 1.0)
+	);
+}
+
+void keyPressed()
+{	
+	if (key == CODED) 
+	{	
+		switch(keyCode)
+		{
 			case SHIFT:
-				shift = true;
+				r.shiftPressed();
 				break;
+
 			case CONTROL:
-				ctrl = true;
+				r.ctrlPressed();
 				break;
-			case ALT:
-				alt = true;
-				break;
+
 			case UP:
-				print("[UP]");
-				break;
 			case DOWN:
-				print("[DOWN]");
-				break;
 			case LEFT:
-				print("[LEFT]");
-				break;
 			case RIGHT:
-				print("[RIGHT]");
+				r.cursorPressed(keyCode);
 				break;
+
 			default:
-				print("[UNDEFINED]");
-		}
-		println((shift ? "SHIFT" : "     ") + (ctrl ? "CTRL" : "    ") + (alt ? "ALT" : "   "));
-				
-	} else {
-		//r.record(key);
+				print("[UNDEFINED KEY]");
+				print("CODED: " + "[" + key + "]");
+		}				
+	} 
+	else 
+	{
+		r.keyPressed(key);
 	}
 }
 
+void keyReleased()
+{	
+	if (key == CODED) 
+	{	
+		switch(keyCode)
+		{
+			case SHIFT:
+				r.shiftReleased();
+				break;
+
+			case CONTROL:
+				r.ctrlReleased();
+				break;
+		}				
+	}
+}
