@@ -40,7 +40,7 @@ class Recorder
 		{
 			if (record.time >= lastTime && record.time <= currentTime)
 			{
-				particles.add(new Particles(record.x, record.y, 10));
+				particles.add(new Particles(record.x, record.y, int(random(1, 10))));
 			}
 		}
 		lastTime = currentTime;

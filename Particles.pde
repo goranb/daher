@@ -11,7 +11,7 @@ class Particles
 		particles = new Particle[number];
 		for (int i = 0; i < number; i++)
 		{
-			particles[i] = new Particle(x, y, random(0, TWO_PI), random(0.005, 0.01));
+			particles[i] = new Particle(x, y, random(0, TWO_PI), random(0.004, 0.009));
 		}
 	}
 
@@ -34,17 +34,17 @@ class Particle
 		p = new PVector(x, y);
 		v = new PVector(cos(dir), sin(dir));
 		v.setMag(speed);
-		g = new PVector(0, 0.0005);
+		g = new PVector(0, 0.0002);
 		c = color(int(random(128, 256)), int(random(128, 256)), int(random(128, 256)));
 	}
 
 	void draw(PGraphics pg)
 	{
+		if (a < 0) return;
 		v.add(g);
 		p.add(v);
 		pg.stroke(c, a);
 		pg.point(p.x * w, p.y * h);
-		println(p.x, p.y);
-		a -= 10;
+		a -= 5;
 	}
 }
