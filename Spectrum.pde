@@ -3,8 +3,8 @@ import ddf.minim.analysis.*;
 import ddf.minim.*;
 
 
-class Spectrum {
-
+class Spectrum 
+{
 	PApplet applet;
 	String song;
 	int num;
@@ -47,7 +47,7 @@ class Spectrum {
 
 	Spectrum(PApplet applet, String song, int num)
 	{
-		this(applet, song, num, 0);
+		this(applet, song, num, 4);
 	}
 
 	Spectrum(PApplet applet, String song)
@@ -59,7 +59,7 @@ class Spectrum {
 	{
 		if (!visible) return; // draw only if visible
 		// init
-		dropoff = mouseY * 1.0 / height;
+		dropoff = 0.5;
 		noFill();
 		strokeWeight(2);
 		fft.forward(sound.mix);
@@ -92,7 +92,7 @@ class Spectrum {
 			blurred[i] = 0.0;
 			for (int c = -blur; c < blur + 1; c++){
 				int e = min(specSize - 1, max(0, i + c)); // put into range
-				// blurred[i] += spectrum[e] * conv[c + conv.length / 2];
+				//blurred[i] += spectrum[e] * conv[c + conv.length / 2];
 				float f = sum > 0 ? (blur - abs(c)) / sum : 1;
 				blurred[i] += spectrum[e] * f;
 			}
@@ -101,24 +101,24 @@ class Spectrum {
 
 		float x = 0;
 		
-		// /* draw spectrum */
-		// stroke(255, 0, 128);
-		// strokeWeight(10);
-		// for (int i = 0; i < specSize; i++){
-		// 	float p = i * 1.0 / (specSize - 1);
-		// 	line(x, height - height * spectrum[i], p * width, height - height * spectrum[i]);
-		// 	x = p * width;
-		// }
-		// x = 0;
+		/* draw spectrum */
+		stroke(255, 0, 128);
+		strokeWeight(10);
+		for (int i = 0; i < specSize; i++){
+			float p = i * 1.0 / (specSize - 1);
+			line(x, height - height * spectrum[i], p * width, height - height * spectrum[i]);
+			x = p * width;
+		}
+		x = 0;
 
 		// /* draw blurred */
 		stroke(0, 255, 255);
+		strokeWeight(1);
 		for (int i = 0; i < specSize - 1; i++){
 			float p = i * 1.0 / (specSize - 1);
 			line(x, height - height * blurred[i], p * width, height - height * blurred[i + 1]);
 			x = p * width;
 		}
-
 
 		//show bend correction curve
 		// stroke(255, 0, 0);
@@ -128,6 +128,8 @@ class Spectrum {
 		// 	line(i, h - h * a, i + 1, h - h * a);
 		// }
 		//
+
+		//updateChannels(blur);
 	}
 
 	float log45(float v)
@@ -157,8 +159,11 @@ class Spectrum {
 
 	void cue(float position)
 	{
-		//println(position);
-		//println(map(position, 0.0, 1.0, 0, sound.length()));
 		sound.cue((int)map(position, 0.0, 1.0, 0, sound.length()));
+	}
+
+	float time()
+	{
+		return sound.position() * 1.0 / sound.length();
 	}
 }

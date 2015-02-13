@@ -1,6 +1,6 @@
 
-class Recorder {
-
+class Recorder 
+{
 	static final float UI = 10.0;
 	static final int channelNum = 10;
 
@@ -12,18 +12,49 @@ class Recorder {
 	Channel channel;
 
 	Spectrum spectrum;
+
+	ArrayList<Record> records;
+
+	float lastTime = 0.0;
+
+	PGraphics pg;
 	
 	Recorder(Spectrum s)
 	{
 		spectrum = s;
+		pg = createGraphics(w, h, JAVA2D);
 		for (int i = 0; i < channelNum; i++)
 		{
 			channels[i] = new Channel();
 		}
+		records = new ArrayList<Record>();
 	}
 
 	void draw()
 	{
+		// recorded
+		float currentTime = spectrum.time();
+		pg.beginDraw();
+		pg.noStroke();
+		pg.fill(0, 32);
+		pg.rect(0, 0, w, h);
+		pg.noFill();
+		pg.stroke(255);
+		for(Record record : records)
+		{
+			if (record.time > lastTime && record.time <= currentTime)
+			{
+				pg.point(record.x * w, record.y * h);
+			}
+		}
+		pg.endDraw();
+
+		noSmooth();
+		image(pg, 0, 0, w * f, h * f);
+		smooth();
+		lastTime = currentTime;
+
+
 		// UI
 		if (shift || ctrl)
 		{
@@ -56,6 +87,39 @@ class Recorder {
 				channels[i].draw(i, channelNum, mouseX * 1.0 / width, mouseY * 1.0 / height);
 			}
 		}
+	}
+
+	void saveRecord()
+	{
+		String[] data = new String[records.size()];
+		int counter = 0;
+		for(Record record : records)
+		{
+			data[counter++] = record.time + " " + record.x + " " + record.y;
+		}
+		saveStrings("data.txt", data);
+		println("Saved.");
+	}
+
+	void loadRecord()
+	{
+		String[] data = loadStrings("data.txt");
+		records.clear();
+		for(int i = 0; i < data.length; i++)
+		{
+			String[] elements = split(data[i], ' ');
+			float time = Float.parseFloat(elements[0]);
+			float x = Float.parseFloat(elements[1]);
+			float y = Float.parseFloat(elements[2]);
+			records.add(new Record(time, x, y));
+		}
+		println("Loaded.");
+	}
+
+	void truncateRecord()
+	{
+		records.clear();
+		println("Truncated.");
 	}
 
 	void shiftPressed()
@@ -105,6 +169,18 @@ class Recorder {
 			case ' ': // show/hide spectrum
 				spectrum.visible = !spectrum.visible;
 				break;
+
+			case 's': // save current record
+				saveRecord();
+				break;
+
+			case 'l': // load saved record
+				loadRecord();
+				break;
+
+			case 't': // truncate current record
+				truncateRecord();
+				break;
 		}
 	}
 
@@ -145,7 +221,7 @@ class Recorder {
 
 	void onlyCursorPressed(int keyCode)
 	{
-		
+			
 	}
 
 	void shiftCtrlCursorPressed(int keyCode)
@@ -193,7 +269,7 @@ class Recorder {
 
 	void onlyMousePressed(float x, float y)
 	{
-
+		records.add(new Record(spectrum.time(), x, y));
 	}
 
 	void shiftCtrlMousePressed(float x, float y)
@@ -203,7 +279,8 @@ class Recorder {
 
 	void shiftMousePressed(float x, float y)
 	{
-		spectrum.cue(x);	
+		spectrum.cue(x);
+		lastTime = spectrum.time();
 	}
 
 	void ctrlMousePressed(float x, float y)

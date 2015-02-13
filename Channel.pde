@@ -3,7 +3,8 @@ import ddf.minim.analysis.*;
 import ddf.minim.*;
 
 
-class Channel {
+class Channel
+{
 
 	float value = 0.0;
 	int valueNum = 0;
@@ -20,20 +21,20 @@ class Channel {
 	{
 		pushStyle();
 			noStroke();
-			
+
 		if (active)
 		{
 			fill(255, hover ? 0 : 255, 0, 64);
 			rect(width * channel / channels, height * threshold, width / channels, height - height * threshold);
 		}
 
-		if (hover) 
+		if (hover)
 		{
 			fill(255, 32);
 			rect(width * channel / channels, height * y, width / channels, height - height * y);
 		}
 
-		popStyle();	
+		popStyle();
 	}
 
 	void resetValue()

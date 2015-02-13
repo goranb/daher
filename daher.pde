@@ -1,10 +1,10 @@
 
 
-static final int w = 192;
-static final int h = 108;
-static final int f = 3;
+static final int w = 96;
+static final int h = 54;
+static final int f = 6;
 
-Spectrum s;	
+Spectrum s;
 Recorder r;
 
 String song = "hbrk.wav"; // instrumental
@@ -15,7 +15,7 @@ boolean alt = false;
 
 void setup()
 {
-	size(w * f, h * f, P3D);
+	size(w * f, h * f, JAVA2D);
 	s = new Spectrum(this, song);
 	r = new Recorder(s);
 	frameRate(30);
