@@ -1,5 +1,5 @@
 
-class Recorder 
+class Recorder
 {
 	static final float UI = 10.0;
 	static final int channelNum = 10;
@@ -18,7 +18,7 @@ class Recorder
 	float lastTime = 0.0;
 
 	PGraphics pg;
-	
+
 	Recorder(Spectrum s)
 	{
 		spectrum = s;
@@ -75,7 +75,7 @@ class Recorder
 				stroke(255, 255, 255);
 			}
 
-			rect(UI / 2, UI / 2, width - UI, height - UI);	
+			rect(UI / 2, UI / 2, width - UI, height - UI);
 			popStyle();
 		}
 
@@ -114,6 +114,13 @@ class Recorder
 			records.add(new Record(time, x, y));
 		}
 		println("Loaded.");
+	}
+
+	void rewind()
+	{
+		spectrum.cue(0);
+		lastTime = spectrum.time();
+		println("Rewinded.");
 	}
 
 	void truncateRecord()
@@ -181,6 +188,10 @@ class Recorder
 			case 't': // truncate current record
 				truncateRecord();
 				break;
+
+			case '1': // rewind
+				rewind();
+				break;
 		}
 	}
 
@@ -221,7 +232,7 @@ class Recorder
 
 	void onlyCursorPressed(int keyCode)
 	{
-			
+
 	}
 
 	void shiftCtrlCursorPressed(int keyCode)
@@ -231,12 +242,12 @@ class Recorder
 
 	void shiftCursorPressed(int keyCode)
 	{
-		
+
 	}
 
 	void ctrlCursorPressed(int keyCode)
 	{
-		
+
 	}
 
 	void mouseMoved(float x, float y)
@@ -274,7 +285,7 @@ class Recorder
 
 	void shiftCtrlMousePressed(float x, float y)
 	{
-		
+
 	}
 
 	void shiftMousePressed(float x, float y)
