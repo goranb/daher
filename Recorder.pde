@@ -14,6 +14,7 @@ class Recorder
 	Spectrum spectrum;
 
 	ArrayList<Record> records;
+	ArrayList<Particles> particles;
 
 	float lastTime = 0.0;
 
@@ -28,31 +29,38 @@ class Recorder
 			channels[i] = new Channel();
 		}
 		records = new ArrayList<Record>();
+		particles = new ArrayList<Particles>();
 	}
 
 	void draw()
 	{
 		// recorded
 		float currentTime = spectrum.time();
+		for(Record record : records)
+		{
+			if (record.time >= lastTime && record.time <= currentTime)
+			{
+				particles.add(new Particles(record.x, record.y, 10));
+			}
+		}
+		lastTime = currentTime;
+
+		// draw
 		pg.beginDraw();
 		pg.noStroke();
-		pg.fill(0, 32);
+		pg.fill(0, 64);
 		pg.rect(0, 0, w, h);
 		pg.noFill();
 		pg.stroke(255);
-		for(Record record : records)
+		for(Particles p : particles)
 		{
-			if (record.time > lastTime && record.time <= currentTime)
-			{
-				pg.point(record.x * w, record.y * h);
-			}
+			p.draw(pg);
 		}
 		pg.endDraw();
 
 		noSmooth();
 		image(pg, 0, 0, w * f, h * f);
 		smooth();
-		lastTime = currentTime;
 
 
 		// UI
